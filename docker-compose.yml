@@ -1,0 +1,45 @@
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  pg_data:
+  static:
+  media:
+
+services:
+  db:
+    image: postgres:13.10
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    env_file: .env
+    restart: always
+    networks:
+      - app_network
+
+  backend:
+    build: ./backend/
+    env_file: .env
+    depends_on:
+      - db
+      - redis  # ← Добавьте redis в зависимости
+    volumes:
+      - static:/backend_static
+      - media:/backend/media/
+    networks:
+      - app_network
+    restart: always
+
+  gateway:
+    build: ./nginx/
+    env_file: .env
+    ports:
+      - 8000:80
+    volumes:
+      - static:/staticfiles/
+      - media:/backend/media/
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart: always
