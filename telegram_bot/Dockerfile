@@ -5,11 +5,11 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /backend
+WORKDIR /telegram_bot
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt --no-cache-dir
-EXPOSE 8000
+EXPOSE 8080
 
 COPY . .
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi"]
+ENTRYPOINT ["sh", "entrypoint.sh"]

@@ -21,3 +21,7 @@ class UserSubscription(models.Model):
         blank=True,
     )
     tariff = models.ForeignKey(Tariff, related_name="subscriptions", on_delete=models.PROTECT)
+    is_active = models.BooleanField(default=False, verbose_name="Активна")
+
+    def is_valid(self):
+        return self.is_active

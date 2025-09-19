@@ -22,12 +22,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     "rest_framework",
     "djoser",
-    'corsheaders',
     "rest_framework.authtoken",
-    'django_filters',
-    'chachalot',
 
     "subscriptions",
     "users",
@@ -43,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middlewares.middleware.SubscriptionMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -73,16 +72,17 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': "db",
-        'PORT': 5432,
-        # 'PASSWORD': '456852',
-        # 'HOST': "localhost",
-        # 'PORT': 5439,
+        'NAME': os.environ.get('POSTGRES_DB', 'postgres'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', '456852'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5439'),
     }
 }
+# DATABASES['default']  = {
+#     'ENGINE': 'django.db.backends.sqlite3',
+#     'NAME': BASE_DIR / 'db.sqlite3',
+# }
 print(f"DATABASES: {DATABASES}")
 # # Для разработки можно использовать SQLite как fallback
 # if os.environ.get('DJANGO_DEVELOPMENT') and not all([
@@ -101,16 +101,16 @@ print(f"DATABASES: {DATABASES}")
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -130,16 +130,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+AUTH_USER_MODEL = "users.CustomUser"
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "collected_static"
 
 STATICFILES_DIRS = ((BASE_DIR / "static/"),)
-# INITIAL_DATA_DIR = BASE_DIR / "data/"  # for local run
 INITIAL_DATA_DIR = BASE_DIR / "static/data/"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = "/app/media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -169,11 +168,30 @@ LOGGING = {
     }
 }
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
 }
-AUTH_USER_MODEL = "users.CustomUser"
+
+
+
+DJOSER = {
+    "LOGIN_FIELD": "email",
+    "PERMISSIONS": {
+        "user_list": ["rest_framework.permissions.AllowAny"],
+        "user": ["djoser.permissions.CurrentUserOrAdminOrReadOnly"],
+    },
+    "HIDE_USERS": False,
+    "SERIALIZERS": {
+        "user": "api.serializers.UserSerializer",
+        "current_user": "api.serializers.UserSerializer",
+    },
+    "PASSWORD_RESET_CONFIRM_URL": "#/ser_password/{uid}/{token}",
+}

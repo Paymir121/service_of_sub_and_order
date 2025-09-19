@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import  User
+from .models import  CustomUser
 
 
-@admin.register(User)
+@admin.register(CustomUser)
 class Users(admin.ModelAdmin):
-    list_display = ("email", "username", "count_follower",)
+    list_display = ("email", "username",)
     search_fields = ("email__startswith", "username__startswith")

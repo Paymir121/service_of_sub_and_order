@@ -22,13 +22,25 @@ services:
     env_file: .env
     depends_on:
       - db
-      - redis  # ← Добавьте redis в зависимости
     volumes:
       - static:/backend_static
       - media:/backend/media/
     networks:
       - app_network
     restart: always
+
+  telegram_bot:
+    build:
+      context: ./telegram_bot
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - db
+    volumes:
+      - static:/backend_static
+      - media:/backend/media/
+    networks:
+      - app_network
 
   gateway:
     build: ./nginx/
@@ -43,3 +55,14 @@ services:
     networks:
       - app_network
     restart: always
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres@postgres.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    networks:
+      - app_network

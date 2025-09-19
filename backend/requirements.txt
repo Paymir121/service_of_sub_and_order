@@ -1,5 +1,5 @@
-requests==2.32.0
-psycopg[binary]==3.1.18
+requests==2.32.4
+psycopg2[binary]
 Django
 djangorestframework
 PyJWT==2.1.0
@@ -9,3 +9,5 @@ pytest-pythonpath==0.7.3
 django-filter==22.1
 python-dotenv==0.19.0
 gunicorn
+djoser
+rest_framework_simplejwt

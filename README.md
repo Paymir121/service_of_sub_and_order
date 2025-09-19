@@ -35,18 +35,10 @@ Nikki Nikonor
         docker compose up --build
 ```
 
-### Выполнить миграции:
-```
-        docker compose exec backend python manage.py migrate
-```
-
-### Выполнить создание суперпользователя:
-```
-        docker compose exec backend python manage.py createsuperuser
-```
-
 ### Выполнить Собрать статику Django:
 ```
-        docker compose exec backend python manage.py collectstatic
-        docker compose exec backend cp -r /app/collected_static/. /backend_static/static/
+    backend python manage.py collectstatic
+    cp -r /app/collected_static/. /backend_static/static/
+    cp -r /backend/collected_static/. //backend_static//static/   
+
 ```
